@@ -1,0 +1,83 @@
+#include <Keypad.h>
+#include <Wire.h> 
+#include <LiquidCrystal.h>
+
+LiquidCrystal lcd(13, 12, 11, 10, 9, 8);
+int randNumber;
+int birinci = 0;
+int hak = 5; // oyuna 5 hakla başlanır
+
+char customKey;
+const byte ROWS = 4;
+const byte COLS = 4;
+
+char keys[ROWS][COLS] = { // keypadın tuşlarını tanımladığımız yer
+  {'1','2','3','+'},
+  {'4','5','6','-'},
+  {'7','8','9','*'},
+  {'C','0','=','/'}
+};
+byte rowPins[ROWS] = {7,6,5,4}; 
+byte colPins[COLS] = {3,2,1,0};
+
+Keypad customKeypad = Keypad( makeKeymap(keys), rowPins, colPins, ROWS, COLS); 
+
+void setup()
+
+{ 
+  randNumber = random(0,100); // 1-100 arası random sayı ürettiğimiz yer
+  lcd.setCursor(1,0);
+  lcd.print("Sayi Tahmini");// ardunio başladıktan sonra çıkar
+  delay(2000);// lcd'de iki saniye bekleyen yazı 
+  lcd.clear(); // sonra ekrandan silinir.
+  lcd.print("1-100 Sayi Gir"); // kullanıcıdan 1-100 arası sayı girmesi isteniyor
+}
+
+void loop()
+{
+ 
+  customKey = customKeypad.getKey();
+  switch(customKey) 
+  {
+  case '0' ... '9': // sayımızı alırız
+    lcd.clear();
+    lcd.setCursor(0,0);
+    birinci = birinci * 10 + (customKey - '0');
+    lcd.print(birinci);
+    break;
+}
+  if(customKey=='='){ //'#' işaretine basıldığında aşağıdaki işlem sonucuna gidilir
+
+    lcd.setCursor(0,0);
+    lcd.clear();
+    
+    if(hak==1){
+      lcd.print("Kaybettiniz"); // hakkımız biterse bize kaybettiniz dicektir
+
+    }
+    else if(birinci>randNumber){ //sayıyı yüksek tahmin edersek yönlendirmek için daha küçük diyor
+     lcd.print("Daha Kucuk");
+     hak--;
+	 Serial.println(hak);
+    }
+    else if (birinci<randNumber){ //sayıyı küçük tahmin edersek yönlendirmek için daha büyük diyor
+      lcd.print("Daha Buyuk");
+      hak--;
+      Serial.println(hak);
+    }
+    else if(birinci==randNumber){ // sayıyı doğru tahmin edersek bu komutu çalıştırıyor
+      lcd.print("Tebrikler");
+    }
+   birinci = 0; 
+   
+  }
+  
+  else if( customKey== 'C'){ // '*' işaretine basılınca lcd ekran temizlenir
+    //sonuc = 0;
+    lcd.clear();
+    lcd.setCursor(1,0);
+  lcd.print("bir sayi girin");
+   
+  }
+  
+}
